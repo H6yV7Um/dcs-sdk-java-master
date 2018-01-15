@@ -15,7 +15,7 @@ public class RenderCardPayload extends Payload implements Serializable {
     public List<ListItem> list;
     public List<ImageStructure> imageList;
 
-    public enum Type {
+    public  enum Type {
         TextCard,
         StandardCard,
         ListCard,
@@ -36,5 +36,19 @@ public class RenderCardPayload extends Payload implements Serializable {
         public String content;
         public ImageStructure image;
         public String url;
+    }
+
+
+    @Override
+    public String toString() {
+        return "RenderCardPayload{" +
+                "type=" + type +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", image=" + image +
+                ", link=" + link +
+                ", list=" + list +
+                ", imageList=" + imageList +
+                '}';
     }
 }

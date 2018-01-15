@@ -91,7 +91,6 @@ public class Directive {
             if (payloadNode == null) {
                 throw ctx.mappingException("Missing payload");
             }
-
             return createDirective(header, payloadNode, rawMessage);
         }
 

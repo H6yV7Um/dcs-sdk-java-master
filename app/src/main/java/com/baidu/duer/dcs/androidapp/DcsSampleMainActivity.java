@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -31,11 +32,13 @@ import com.baidu.duer.dcs.R;
 import com.baidu.duer.dcs.androidsystemimpl.PlatformFactoryImpl;
 import com.baidu.duer.dcs.androidsystemimpl.webview.BaseWebView;
 import com.baidu.duer.dcs.devicemodule.screen.ScreenDeviceModule;
+import com.baidu.duer.dcs.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.devicemodule.voiceinput.VoiceInputDeviceModule;
 import com.baidu.duer.dcs.framework.DcsFramework;
 import com.baidu.duer.dcs.framework.DeviceModuleFactory;
 import com.baidu.duer.dcs.framework.IResponseListener;
+import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.http.HttpConfig;
 import com.baidu.duer.dcs.oauth.api.IOauth;
 import com.baidu.duer.dcs.oauth.api.OauthImpl;
@@ -45,7 +48,9 @@ import com.baidu.duer.dcs.systeminterface.IWakeUp;
 import com.baidu.duer.dcs.util.CommonUtil;
 import com.baidu.duer.dcs.util.FileUtil;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.NetWorkUtil;
+import com.baidu.duer.dcs.util.ToastUtils;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 
 import java.io.File;
@@ -60,13 +65,11 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     private Button voiceButton;
     private TextView textViewTimeStopListen;
     private TextView textViewRenderVoiceInputText;
-    private Button pauseOrPlayButton;
     private BaseWebView webView;
     private LinearLayout mTopLinearLayout;
     private DcsFramework dcsFramework;
     private DeviceModuleFactory deviceModuleFactory;
     private IPlatformFactory platformFactory;
-    private boolean isPause = true;
     private long startTimeStopListen;
     private boolean isStopListenReceiving;
     private String mHtmlUrl;
@@ -89,8 +92,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     }
 
     private void initView() {
-        Button openLogBtn = (Button) findViewById(R.id.openLogBtn);
-        openLogBtn.setOnClickListener(this);
+
         voiceButton = (Button) findViewById(R.id.voiceBtn);
         voiceButton.setOnClickListener(this);
 
@@ -113,11 +115,9 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                LogUtil.e("DcsMain", "url==" + url);
                 if (!url.equals(mHtmlUrl) && !"about:blank".equals(mHtmlUrl)) {
                     platformFactory.getWebView().linkClicked(url);
                 }
-
                 mHtmlUrl = url;
             }
 
@@ -128,12 +128,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         });
         mTopLinearLayout.addView(webView);
 
-        Button mPreviousSongBtn = (Button) findViewById(R.id.previousSongBtn);
-        pauseOrPlayButton = (Button) findViewById(R.id.pauseOrPlayBtn);
-        Button mNextSongBtn = (Button) findViewById(R.id.nextSongBtn);
-        mPreviousSongBtn.setOnClickListener(this);
-        pauseOrPlayButton.setOnClickListener(this);
-        mNextSongBtn.setOnClickListener(this);
+
     }
 
     private void initFramework() {
@@ -183,36 +178,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         deviceModuleFactory.createAlertsDeviceModule();
 
         deviceModuleFactory.createAudioPlayerDeviceModule();
-        deviceModuleFactory.getAudioPlayerDeviceModule().addAudioPlayListener(
-                new IMediaPlayer.SimpleMediaPlayerListener() {
-                    @Override
-                    public void onPaused() {
-                        super.onPaused();
-                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_paused));
-                        isPause = true;
-                    }
 
-                    @Override
-                    public void onPlaying() {
-                        super.onPlaying();
-                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_playing));
-                        isPause = false;
-                    }
-
-                    @Override
-                    public void onCompletion() {
-                        super.onCompletion();
-                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_default));
-                        isPause = false;
-                    }
-
-                    @Override
-                    public void onStopped() {
-                        super.onStopped();
-                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_default));
-                        isPause = true;
-                    }
-                });
 
         deviceModuleFactory.createSystemDeviceModule();
         deviceModuleFactory.createSpeakControllerDeviceModule();
@@ -228,6 +194,19 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 });
 
 
+        //设置RenderCard
+
+        deviceModuleFactory.getScreenDeviceModule().addRenderListener(new ScreenDeviceModule.IRenderListener() {
+            @Override
+            public void onRenderDirective(Directive directive) {
+                //从directive 中获取playload
+
+                RenderCardPayload payload = (RenderCardPayload) directive.getPayload();
+
+                handleRenderCardPayLoad(payload);
+            }
+        });
+
         // init唤醒
         wakeUp = new WakeUp(platformFactory.getWakeUp(),
                 platformFactory.getAudioRecord());
@@ -236,13 +215,19 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         wakeUp.startWakeUp();
     }
 
+    //处理RenderCardPlayLoad
+    private void handleRenderCardPayLoad(RenderCardPayload payLoad) {
+
+        LogUtils.e("RenderCardPayload====" + payLoad.toString());
+//        switch (payLoad.type){
+//            case  RenderCardPayload.Type.TextCard:
+//        }
+    }
+
     private IWakeUp.IWakeUpListener wakeUpListener = new IWakeUp.IWakeUpListener() {
         @Override
         public void onWakeUpSucceed() {
-            Toast.makeText(DcsSampleMainActivity.this,
-                    getResources().getString(R.string.wakeup_succeed),
-                    Toast.LENGTH_SHORT)
-                    .show();
+            ToastUtils.showForumToast(DcsSampleMainActivity.this, getResources().getString(R.string.wakeup_succeed), R.drawable.pop_icon_toast_success);
             //自动触发点击事件
             voiceButton.performClick();
         }
@@ -301,25 +286,6 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 isStopListenReceiving = true;
                 startTimeStopListen = System.currentTimeMillis();
                 platformFactory.getVoiceInput().startRecord();
-                doUserActivity();
-                break;
-            case R.id.openLogBtn:
-                openAssignFolder(FileUtil.getLogFilePath());
-                break;
-            case R.id.previousSongBtn:
-                platformFactory.getPlayback().previous(nextPreResponseListener);
-                doUserActivity();
-                break;
-            case R.id.nextSongBtn:
-                platformFactory.getPlayback().next(nextPreResponseListener);
-                doUserActivity();
-                break;
-            case R.id.pauseOrPlayBtn:
-                if (isPause) {
-                    platformFactory.getPlayback().play(playPauseResponseListener);
-                } else {
-                    platformFactory.getPlayback().pause(playPauseResponseListener);
-                }
                 doUserActivity();
                 break;
             default:
