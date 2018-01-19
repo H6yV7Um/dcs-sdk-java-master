@@ -23,8 +23,12 @@ import com.baidu.duer.dcs.framework.decoder.IDecoder;
 import com.baidu.duer.dcs.framework.message.DcsResponseBody;
 import com.baidu.duer.dcs.framework.DcsStream;
 import com.baidu.duer.dcs.http.HttpConfig;
+import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -42,11 +46,17 @@ import java.util.Map;
  */
 public class MultipartParser extends Parser {
     private static final String TAG = "MultipartParser";
+
     private static final int BUFFER_SIZE = 8192;
     private final IDecoder decoder;
     private final IMultipartParserListener multipartParserListener;
     private static final byte[] HEARTBEAT_BODY = new byte[]{0x7b, 0x7d, 0x0d, 0x0a};
     private static final byte[] EMPTY_PART = new byte[]{0x0d, 0x0a};
+
+    //解析JSON是使用的Key
+    private static final String KEY_DIRECTIVE = "directive";
+    private static final String KEY_HEADER = "header";
+    private static final String KEY_PAYLOAD = "payload";
 
     public MultipartParser(IDecoder decoder, IMultipartParserListener listener) {
         this.decoder = decoder;
@@ -104,7 +114,7 @@ public class MultipartParser extends Parser {
                 long start = System.currentTimeMillis();
                 byte[] partBytes = getPartBytes(multipartStream);
                 String content = new String(partBytes);
-                Log.d(TAG, "jsonContent: \r\n" + content);
+                Log.e(TAG, "jsonContent: \r\n" + content);
                 handleJsonData(partBytes);
                 Log.d(TAG, "json parse:" + (System.currentTimeMillis() - start));
             } else if (isOctetStream(headers)) {
@@ -114,6 +124,29 @@ public class MultipartParser extends Parser {
     }
 
     private void handleJsonData(byte[] partBytes) throws IOException {
+        //这几改为根据返回的类型进行判断的语句
+
+        String content = new String(partBytes);
+        JSONObject obj;
+        JSONObject obj_directive;
+        JSONObject obj_header;
+        JSONObject obj_payload = null;
+        try {
+            if (null != content && content.length() != 0) {
+                obj = new JSONObject(content);
+
+                 obj_directive = obj.getJSONObject(KEY_DIRECTIVE);
+                 obj_header = obj_directive.getJSONObject(KEY_HEADER);
+                 obj_payload = obj_directive.getJSONObject(KEY_PAYLOAD);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
+        //原来的代码
         if (multipartParserListener != null) {
             if (Arrays.equals(HEARTBEAT_BODY, partBytes)) {
                 multipartParserListener.onHeartBeat();
@@ -121,6 +154,9 @@ public class MultipartParser extends Parser {
                 // empty part
             } else {
                 final DcsResponseBody responseBody = parse(partBytes, DcsResponseBody.class);
+
+
+                if (null!=obj_payload.toString())responseBody.setPayLoad(obj_payload.toString());
                 multipartParserListener.onResponseBody(responseBody);
             }
         }
@@ -131,42 +167,42 @@ public class MultipartParser extends Parser {
     private void handleAudio(Map<String, String> headers, MultipartStreamCopy multipartStream)
             throws IOException {
         synchronized (decoder) {
-        String contentId = getMultipartContentId(headers);
-        final DcsStream dcsStream = new DcsStream();
-        InputStream inputStream = multipartStream.newInputStream();
-        try {
-            final AudioData audioData = new AudioData(contentId, dcsStream);
-            if (multipartParserListener != null) {
-                multipartParserListener.onAudioData(audioData);
-            }
-            decodeListener = new IDecoder.IDecodeListener() {
-                @Override
-                public void onDecodeInfo(int sampleRate, int channels) {
-                    Log.d(TAG, "Decoder-onDecodeInfo-sampleRate=" + sampleRate);
-                    Log.d(TAG, "Decoder-onDecodeInfo-channels=" + channels);
-                    dcsStream.sampleRate = sampleRate;
-                    dcsStream.channels = channels;
+            String contentId = getMultipartContentId(headers);
+            final DcsStream dcsStream = new DcsStream();
+            InputStream inputStream = multipartStream.newInputStream();
+            try {
+                final AudioData audioData = new AudioData(contentId, dcsStream);
+                if (multipartParserListener != null) {
+                    multipartParserListener.onAudioData(audioData);
                 }
+                decodeListener = new IDecoder.IDecodeListener() {
+                    @Override
+                    public void onDecodeInfo(int sampleRate, int channels) {
+                        Log.d(TAG, "Decoder-onDecodeInfo-sampleRate=" + sampleRate);
+                        Log.d(TAG, "Decoder-onDecodeInfo-channels=" + channels);
+                        dcsStream.sampleRate = sampleRate;
+                        dcsStream.channels = channels;
+                    }
 
-                @Override
-                public void onDecodePcm(byte[] pcmData) {
-                    dcsStream.dataQueue.add(pcmData);
-                }
+                    @Override
+                    public void onDecodePcm(byte[] pcmData) {
+                        dcsStream.dataQueue.add(pcmData);
+                    }
 
-                @Override
-                public void onDecodeFinished() {
-                    dcsStream.isFin = true;
-                    decoder.removeOnDecodeListener(this);
-                }
-            };
-            decoder.addOnDecodeListener(decodeListener);
-            decoder.decode(new WrapInputStream(inputStream));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(TAG, "Decoder-handleAudio Exception: ", e);
-            dcsStream.isFin = true;
-            if (decodeListener != null) {
-                decoder.removeOnDecodeListener(decodeListener);
+                    @Override
+                    public void onDecodeFinished() {
+                        dcsStream.isFin = true;
+                        decoder.removeOnDecodeListener(this);
+                    }
+                };
+                decoder.addOnDecodeListener(decodeListener);
+                decoder.decode(new WrapInputStream(inputStream));
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "Decoder-handleAudio Exception: ", e);
+                dcsStream.isFin = true;
+                if (decodeListener != null) {
+                    decoder.removeOnDecodeListener(decodeListener);
                 }
             }
         }

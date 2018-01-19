@@ -38,5 +38,35 @@ public class ApiConstants {
         public static final class RenderStock {
             public static final String NAME = RenderStock.class.getSimpleName();
         }
+
+        public static final class RenderNoticeMessage {
+            public static final String NAME = RenderNoticeMessage.class.getSimpleName();
+        }
+
+        public static final class RenderAudioList {
+            public static final String NAME = RenderAudioList.class.getSimpleName();
+        }
+
+        //播放音乐相关信息
+        public static final class RenderPlayerInfo {
+            public static final String NAME = RenderPlayerInfo.class.getSimpleName();
+        }
+
+
+        public static final class RenderAlbumList {
+            public static final String NAME = RenderAlbumList.class.getSimpleName();
+        }
+
+        public static final class RenderActiveAlarm {
+            public static final String NAME = RenderActiveAlarm.class.getSimpleName();
+        }
+
+        public static final class RenderTimerList {
+            public static final String NAME = RenderTimerList.class.getSimpleName();
+        }
+
+        public static final class RenderActiveTimer {
+            public static final String NAME = RenderActiveTimer.class.getSimpleName();
+        }
     }
 }

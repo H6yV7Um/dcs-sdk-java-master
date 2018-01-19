@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_lrc"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center"
+        android:text="红昭愿  作词：荒唐客【音阙诗听】 作曲：殇小谨【音阙诗听】 编曲：朱鸽 混音：殇小谨【音阙诗听】 制作人：殇小谨【音阙诗听】 配唱制作人：殇小谨【音阙诗听】  和声编写：殇小谨【音阙诗听】  和声：殇小谨【音阙诗听】  美工：睢亦【音阙诗听】 混音室：Hot Music Studio 监制：殇小谨 李俊羽【音阙诗听】     手中雕刻生花 刀锋千转蜿蜒成画 盛名功德塔 是桥畔某处人家 春风绕过发梢红纱 刺绣赠他 眉目刚烈拟作妆嫁  轰烈流沙枕上白发 杯中酒比划 年少风雅鲜衣怒马 也不过一刹那 难免疏漏儿时檐下 莫测变化 隔却山海 转身 从容煎茶  （一生长） 重寄一段过往 将希冀都流放 可曾添些荒唐 才记得你的模样  （一身霜） 谁提笔只两行 换一隅你安康 便销得这沧桑 你还在我的心上   彼时南面隔春风 一刀裁入断玲珑 寥落晨时须臾问 长游不归莫相送 何年东君迟来久 细数银丝鬓上逢 恐有街头胭脂色 柳絮沾白雪沾红  轰烈流沙枕上白发 杯中酒比划 年少风雅鲜衣怒马 也不过一刹那 难免疏漏儿时檐下 莫测变化 隔却山海 转身 从容煎茶  （一生长） 重寄一段过往 将希冀都流放 可曾添些荒唐 才记得你的模样  （一身霜） 谁提笔只两行 换一隅你安康 便销得这沧桑 你还在我的心上  （一生长） 重寄一段过往 将希冀都流放 可曾添些荒唐 才记得你的模样  （一身霜） 谁提笔只两行 换一隅你安康 便销得这沧桑 你还在我的心上" />
+</RelativeLayout>

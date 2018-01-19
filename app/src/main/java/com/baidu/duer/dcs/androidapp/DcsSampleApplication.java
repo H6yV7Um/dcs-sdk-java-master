@@ -17,6 +17,8 @@ package com.baidu.duer.dcs.androidapp;
 
 import android.app.Application;
 
+import com.baidu.duer.dcs.pccmodel.PCCLogic;
+
 /**
  * DcsSample application
  * <p>
@@ -29,7 +31,10 @@ public class DcsSampleApplication extends Application {
         super.onCreate();
         instance = this;
         // LeakCanary.install(this);
+
+        PCCLogic.getPCC(this);
     }
+
     public static DcsSampleApplication getInstance() {
         return instance;
     }

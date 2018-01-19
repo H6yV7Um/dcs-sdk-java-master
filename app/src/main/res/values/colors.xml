@@ -14,4 +14,9 @@
     <color name="color_yellow">#9e9f36</color>
     <color name="color_tv_black">#020202</color>
     <color name="color_tv_white">#f7f7f6</color>
+
+    <color name="color_tv_blue">#ff1247c2</color>
+
+    <color name="color_bg_gray_245">#f5f5f5</color>
+    <color name="color_bg_gray_8e8">#8e8888</color>
 </resources>

@@ -53,6 +53,8 @@ public class ScreenExtendDeviceModule extends BaseDeviceModule {
                 || RenderAirQuality.NAME.equals(name)
                 || RenderTrafficRestriction.NAME.equals(name)) {
             handleExtendCardDirective(directive);
+        }else if(ApiConstants.Directives.RenderPlayerInfo.NAME.equals(name)){
+            handleExtendCardDirective(directive);
         } else {
             String message = "VoiceOutput cannot handle the directive";
             throw new HandleDirectiveException(UNSUPPORTED_OPERATION, message);

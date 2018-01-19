@@ -41,6 +41,19 @@ import java.util.Map;
 public class Directive {
     public Header header;
     public Payload payload;
+    private String payloadStr;
+
+    public String getRawMessage() {
+        return rawMessage;
+    }
+
+    public String getPayloadStr() {
+        return payloadStr;
+    }
+
+    public void setPayloadStr(String payloadStr) {
+        this.payloadStr = payloadStr;
+    }
 
     @JsonIgnore
     public String rawMessage;
@@ -58,6 +71,10 @@ public class Directive {
         }
 
         this.rawMessage = rawMessage;
+    }
+
+    public Header getHeader() {
+        return header;
     }
 
     /**

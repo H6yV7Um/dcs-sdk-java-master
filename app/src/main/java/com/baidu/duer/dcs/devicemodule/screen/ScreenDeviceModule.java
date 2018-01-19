@@ -29,6 +29,7 @@ import com.baidu.duer.dcs.framework.message.MessageIdHeader;
 import com.baidu.duer.dcs.framework.message.Payload;
 import com.baidu.duer.dcs.systeminterface.IWebView;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,11 +65,8 @@ public class ScreenDeviceModule extends BaseDeviceModule {
 
     @Override
     public void handleDirective(Directive directive) throws HandleDirectiveException {
-
-
-
+        LogUtils.e("Directive.getPayLoad()==" + directive.getPayloadStr());
         String name = directive.header.getName();
-        LogUtil.e("ScreenDeviceModule","directive.header.getName==="+name);
         if (name.equals(ApiConstants.Directives.HtmlView.NAME)) {
             handleHtmlPayload(directive.getPayload());
         } else if (name.equals(ApiConstants.Directives.RenderVoiceInputText.NAME)) {
@@ -78,7 +76,7 @@ public class ScreenDeviceModule extends BaseDeviceModule {
             handleScreenDirective(directive);
         } else if (name.equals(ApiConstants.Directives.RenderHint.NAME)) {
             handleScreenDirective(directive);
-        } else {
+        }  else {
             String message = "VoiceOutput cannot handle the directive";
             throw (new HandleDirectiveException(
                     HandleDirectiveException.ExceptionType.UNSUPPORTED_OPERATION, message));

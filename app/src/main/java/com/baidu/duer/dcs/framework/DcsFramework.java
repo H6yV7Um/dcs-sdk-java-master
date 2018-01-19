@@ -26,6 +26,7 @@ import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.framework.message.Event;
 import com.baidu.duer.dcs.systeminterface.IPlatformFactory;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,6 +103,8 @@ public class DcsFramework {
         try {
             BaseDeviceModule deviceModule = dispatchDeviceModules.get(namespace);
             if (deviceModule != null) {
+
+
                 deviceModule.handleDirective(directive);
             } else {
                 String message = "No device to handle the directive";
@@ -128,6 +131,8 @@ public class DcsFramework {
                     public void run() {
                         LogUtil.d(TAG, "DcsResponseBodyEnqueue-handleDirective-MSG:"
                                 + responseBody.getDirective().rawMessage);
+
+                        responseBody.getDirective().setPayloadStr(responseBody.getPayLoad());
                         handleDirective(responseBody.getDirective());
                     }
                 });
@@ -218,6 +223,8 @@ public class DcsFramework {
 
             @Override
             public void addDeviceModule(BaseDeviceModule deviceModule) {
+
+
                 DcsFramework.this.addDeviceModule(deviceModule);
             }
 

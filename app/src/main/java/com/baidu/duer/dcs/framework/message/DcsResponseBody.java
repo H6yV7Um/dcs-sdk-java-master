@@ -24,6 +24,7 @@ public class DcsResponseBody {
     // 指令
     private Directive directive;
 
+
     public Directive getDirective() {
         return directive;
     }
@@ -31,4 +32,17 @@ public class DcsResponseBody {
     public void setDirective(Directive directive) {
         this.directive = directive;
     }
+
+
+    private String payLoad;
+
+    public String getPayLoad() {
+        return payLoad;
+    }
+
+    public void setPayLoad(String payLoad) {
+        this.payLoad = payLoad;
+    }
+
+
 }

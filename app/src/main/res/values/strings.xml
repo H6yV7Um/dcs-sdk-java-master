@@ -23,4 +23,5 @@
     <string name="login_succeed">登陆成功</string>
     <string name="wakeup_succeed">唤醒成功,您问点什么呢?</string>
     <string name="wakeup_word">您可以说【小度小度】进行唤醒</string>
+    <string name="hint_word">您可以 \"点击说话\" 吩咐我做事,例如:\n小度小度播放歌曲青花瓷 \n小度小度查看今天天气  \n小度小度姚明的身高</string>
 </resources>
