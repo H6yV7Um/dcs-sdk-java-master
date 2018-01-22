@@ -69,6 +69,8 @@ import com.baidu.duer.dcs.util.ToastUtils;
 import com.baidu.duer.dcs.util.Util;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.baidu.duer.dcs.widget.PlayMusicUI;
+import com.baidu.duer.dcs.widget.RenderCardStandadrUI;
+import com.baidu.duer.dcs.widget.RenderCardTextUI;
 import com.baidu.duer.dcs.widget.WeatherUI;
 
 import java.io.File;
@@ -278,22 +280,13 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         deviceModuleFactory.getScreenExtendDeviceModule().addListener(new ScreenExtendDeviceModule.IRenderExtendListener() {
             @Override
             public void onRenderDirective(Directive directive) {
-                //查询天气时返回json
-                //={"header":{"namespace":"ai.dueros.device_interface.screen_extended_card","name":"RenderWeather","messageId":"ZHVlcl93ZWF0aGVyKzE1MTYyNDE3MDg=","dialogRequestId":"ac257d84-b300-4ca5-b942-0c5975904ace"},
-                // "payload":{"city":"广州","county":"广州","askingDay":"THU","askingDate":"2018-01-18","weatherForecast":[{"weatherIcon":{"src":"http://h.hiphotos.baidu.com/xiaodu/pic/item/0823dd54564e92586e4869d99782d158ccbf4e8d.jpg"},"highTemperature":"24℃","lowTemperature":"13℃","day":"THU","date":"2018-01-18","weatherCondition":"多云转小雨","windCondition":"无持续风向微风","currentTemperature":"17℃","currentPM25":"202","currentAirQuality":"重度污染","indexes":[{"type":"CLOTHES","level":"舒适","suggestion":"温度舒适，可以穿T恤衫、衬衫和薄外套，注意早晚温差"},{"type":"CAR_WASH","level":"不宜","suggestion":"不适合洗车，当日未来24小时内有雨，雨水可能会再次弄脏你的车"},{"type":"TRIP","level":"适宜","suggestion":"天气较好，但丝毫不会影响您出行的心情。温度适宜又有微风相伴，适宜旅游。"},{"type":"INFLUENZA","level":"易发","suggestion":"容易感冒，请注意衣服增减，多喝开水多保暖"},{"type":"EXERCISE","level":"适宜","suggestion":"天气较好，赶快投身大自然参与户外运动，尽情感受运动的快乐吧。"},{"type":"ULTRAVIOLET","level":"最弱","suggestion":"紫外线辐射弱，无需特别防护。如果长期出门，建议你涂抹防晒指数在8-12之间的防晒霜"}],"pm25":"202","airQuality":"重度污染"},{"weatherIcon":{"src":"http://e.hiphotos.baidu.com/xiaodu/pic/item/b03533fa828ba61e64b927184a34970a304e59b6.jpg"},"highTemperature":"20℃","lowTemperature":"15℃","day":"FRI","date":"2018-01-19","weatherCondition":"阴","windCondition":"无持续风向微风"},{"weatherIcon":{"src":"http://e.hiphotos.baidu.com/xiaodu/pic/item/b03533fa828ba61e64b927184a34970a304e59b6.jpg"},"highTemperature":"18℃","lowTemperature":"15℃","day":"SAT","date":"2018-01-20","weatherCondition":"阴","windCondition":"无持续风向微风"},{"weatherIcon":{"src":"http://e.hiphotos.baidu.com/xiaodu/pic/item/b03533fa828ba61e64b927184a34970a304e59b6.jpg"},"highTemperature":"21℃","lowTemperature":"14℃","day":"SUN","date":"2018-01-21","weatherCondition":"阴","windCondition":"无持续风向微风"},{"weatherIcon":{"src":"http://e.hiphotos.baidu.com/xiaodu/pic/item/b03533fa828ba61e64b927184a34970a304e59b6.jpg"},"highTemperature":"20℃","lowTemperature":"13℃","day":"MON","date":"2018-01-22","weatherCondition":"阴","windCondition":"无持续风向微风"}],"askingType":"WEATHER","description":"广州今天多云转小雨，13℃～24℃，和昨天差不多，空气质量指数202，重度污染，请记得带伞。","timeZone":"8","askingDateDescription":"今天"}}
-
-                //播放音乐
-                // {"directive":{"header":{"messageId":"YXVkaW9fbXVzaWMrMTUxNjI0NDE5OV8wODU2NTAwM2M=","name":"RenderPlayerInfo","namespace":"ai.dueros.device_interface.screen_extended_card","dialogRequestId":"338f67c0-7f48-4b78-89f0-84bfd8b2b67f"},
-                // "payload":{"audioItemId":"1280270847","content":{"art":{"src":"http://qukufile2.qianqian.com/data2/pic/b246383060d12818a384676beb51e560/568304248/568304248.jpg@w_336,h_336"},"audioItemType":"MUSIC","lyric":{"format":"LRC","url":"http://xiaodu.baidu.com/music/api/songlyric?song_id=1280270847"},"mediaLengthInMilliseconds":241000,"provider":{"logo":{"src":"http://music-picture.bj.bcebos.com/picture/baidu_logo.png"},"name":"百度音乐"},"title":"做我的猫","titleSubtext1":"满舒克","titleSubtext2":"做我的猫"},"controls":[{"enabled":true,"name":"PLAY_PAUSE","selected":false,"type":"BUTTON"},{"enabled":true,"name":"PREVIOUS","selected":false,"type":"BUTTON"},{"enabled":true,"name":"NEXT","selected":false,"type":"BUTTON"},{"enabled":true,"name":"LYRIC","selected":false,"type":"BUTTON"},{"enabled":true,"name":"FAVORITE","selected":false,"type":"BUTTON"},{"enabled":true,"name":"SHOW_PLAYLIST","selected":false,"type":"BUTTON"},{"enabled":true,"name":"SHOW_FAVORITE_LIST","selected":false,"type":"BUTTON"},{"enabled":true,"name":"RECOMMEND","selected":false,"type":"BUTTON"},{"name":"REPEAT","selectedValue":"REPEAT_ALL","type":"RADIO_BUTTON"},{"name":"THUMBS_UP_DOWN","selectedValue":"","type":"RADIO_BUTTON"}],"token":"eyJib3RfaWQiOiJhdWRpb19tdXNpYyIsInJlc3VsdF90b2tlbiI6IjY4OGFhYmM0NTI3MTdkODQ5ZmIwOWJhNzYzMTFlYjhhIiwiYm90X3Rva2VuIjoiMTI4MDI3MDg0NyJ9"}}}
                 mTopLinearLayout.removeAllViews();
                 if (directive.getHeader().getName().equals(com.baidu.duer.dcs.devicemodule.screen.extend.card.ApiConstants.Directives.RenderWeather.NAME)) {
-                    LogUtils.e("获取到的RenderCardPayload数据===" + directive.getRawMessage());
-
+                    //查询天气时返回json
                     handleRenderWeather(directive);
                 } else if (directive.getHeader().getName().equals(com.baidu.duer.dcs.devicemodule.screen.extend.card.ApiConstants.Directives.RenderPlayerInfo.NAME)) {
                     handlePlayMusicLrc(directive);
-
-
+                    //播放音乐
                 }
 
             }
@@ -318,8 +311,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 LogUtils.e("获取到的RenderCardPayload数据===" + directive.getRawMessage());
 
                 if (directive.getHeader().getName().equals(ApiConstants.Directives.RenderCard.NAME)) {
-                    RenderCardPayload payload = (RenderCardPayload) directive.getPayload();
-                    handleRenderCardPayLoad(payload);
+
+                    LogUtils.e("待处理数据");
+                    RenderCardPayload renderCardPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderCardPayload.class);
+                    handleRenderCardPayLoad(renderCardPayload);
                 } else if (directive.getHeader().getName().equals(ApiConstants.Directives.RenderHint.NAME)) {
 
                 }
@@ -431,11 +426,36 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
     //处理RenderCardPlayLoad
     private void handleRenderCardPayLoad(RenderCardPayload payLoad) {
+        switch (payLoad.getType()) {
+            case RenderCardPayload.TYPE.TEXTCARD:
+                handleRenderCardText(payLoad);
+                break;
+            case RenderCardPayload.TYPE.STANDARDCARD:
+                handleRenderCardStandard(payLoad);
+                break;
+            case RenderCardPayload.TYPE.IMAGELISTCARD:
+                break;
+            case RenderCardPayload.TYPE.LISTCARD:
+                break;
+            default:
+                break;
+        }
 
-        LogUtils.e("RenderCardPayload====" + payLoad.toString());
-//        switch (payLoad.type){
-//            case  RenderCardPayload.Type.TextCard:
-//        }
+    }
+
+
+    private void handleRenderCardText(RenderCardPayload payLoad) {
+        RenderCardTextUI renderCardTextUI = new RenderCardTextUI(this);
+        renderCardTextUI.setData(payLoad);
+        mTopLinearLayout.addView(renderCardTextUI);
+    }
+
+    private void handleRenderCardStandard(RenderCardPayload payLoad) {
+
+        LogUtils.e("处理standard");
+        RenderCardStandadrUI renderCardStandard = new RenderCardStandadrUI(this);
+        renderCardStandard.setData(payLoad);
+        mTopLinearLayout.addView(renderCardStandard);
     }
 
     private IWakeUp.IWakeUpListener wakeUpListener = new IWakeUp.IWakeUpListener() {
