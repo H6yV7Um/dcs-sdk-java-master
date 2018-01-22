@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/adapter_render_list_iv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/timg" />
+
+    <TextView
+        android:id="@+id/adapter_render_list_tv_title"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+
+        android:clickable="true"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:paddingBottom="3dp"
+        android:singleLine="true"
+        android:text="我的电脑在哪_百度知道"
+        android:textColor="@color/color_tv_white"
+        android:textSize="13dp" />
+
+    <TextView
+        android:id="@+id/adapter_render_list_tv_content"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="5dp"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+        android:maxLines="2"
+        android:paddingBottom="3dp"
+        android:text="Windows10我的电脑在哪里?Win10计算机在哪,对于用习惯了Widow系统的用户而言,对于桌面上如果没有“我的电脑”这个图标,那将是一件无法接受的事情。在当前最新的..."
+        android:textColor="@color/color_tv_gray"
+        android:textSize="10dp" />
+</LinearLayout>

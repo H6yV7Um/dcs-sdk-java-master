@@ -126,19 +126,18 @@ public class RenderCardPayload extends Payload implements Serializable {
     public void setList(List<ListBean> list) {
         this.list = list;
     }
-
     public static class ListBean {
         private String title;
         private String content;
-        private String image;
         private String url;
+        private ImageBean image;
 
         public static ListBean objectFromData(String str, String key) {
 
             try {
                 JSONObject jsonObject = new JSONObject(str);
 
-                return new com.google.gson.Gson().fromJson(jsonObject.getJSONObject(key).toString(), ListBean.class);
+                return new Gson().fromJson(jsonObject.getJSONObject(key).toString(), ListBean.class);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -150,10 +149,10 @@ public class RenderCardPayload extends Payload implements Serializable {
 
             try {
                 JSONObject jsonObject = new JSONObject(str);
-                Type listType = new com.google.gson.reflect.TypeToken<ArrayList<ListBean>>() {
+                Type listType = new TypeToken<ArrayList<ListBean>>() {
                 }.getType();
 
-                return new com.google.gson.Gson().fromJson(jsonObject.getJSONArray(key).toString(), listType);
+                return new Gson().fromJson(jsonObject.getJSONArray(key).toString(), listType);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -180,14 +179,6 @@ public class RenderCardPayload extends Payload implements Serializable {
             this.content = content;
         }
 
-        public String getImage() {
-            return image;
-        }
-
-        public void setImage(String image) {
-            this.image = image;
-        }
-
         public String getUrl() {
             return url;
         }
@@ -195,7 +186,59 @@ public class RenderCardPayload extends Payload implements Serializable {
         public void setUrl(String url) {
             this.url = url;
         }
+
+        public ImageBean getImage() {
+            return image;
+        }
+
+        public void setImage(ImageBean image) {
+            this.image = image;
+        }
+
+        public static class ImageBean {
+            private String src;
+
+            public static ImageBean objectFromData(String str, String key) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(str);
+
+                    return new Gson().fromJson(jsonObject.getJSONObject(key).toString(), ImageBean.class);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+
+            public static List<ImageBean> arrayImageBeanFromData(String str, String key) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(str);
+                    Type listType = new TypeToken<ArrayList<ImageBean>>() {
+                    }.getType();
+
+                    return new Gson().fromJson(jsonObject.getJSONArray(key).toString(), listType);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return new ArrayList();
+
+
+            }
+
+            public String getSrc() {
+                return src;
+            }
+
+            public void setSrc(String src) {
+                this.src = src;
+            }
+        }
     }
+
     public static class ImageBean {
         private String src;
 

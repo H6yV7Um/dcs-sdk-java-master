@@ -38,6 +38,7 @@ import com.baidu.duer.dcs.devicemodule.screen.ScreenDeviceModule;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.ScreenExtendDeviceModule;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.message.RenderPlayerInfoPayload;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.message.RenderWeatherPayload;
+import com.baidu.duer.dcs.devicemodule.screen.message.RenderCardListPayload;
 import com.baidu.duer.dcs.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.devicemodule.voiceinput.VoiceInputDeviceModule;
@@ -69,6 +70,7 @@ import com.baidu.duer.dcs.util.ToastUtils;
 import com.baidu.duer.dcs.util.Util;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.baidu.duer.dcs.widget.PlayMusicUI;
+import com.baidu.duer.dcs.widget.RenderCardListUI;
 import com.baidu.duer.dcs.widget.RenderCardStandadrUI;
 import com.baidu.duer.dcs.widget.RenderCardTextUI;
 import com.baidu.duer.dcs.widget.WeatherUI;
@@ -314,7 +316,14 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
                     LogUtils.e("待处理数据");
                     RenderCardPayload renderCardPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderCardPayload.class);
-                    handleRenderCardPayLoad(renderCardPayload);
+
+                    if (!Util.isNull(renderCardPayload)){
+                        handleRenderCardPayLoad(renderCardPayload);
+                    }else {
+//                        RenderCardListPayload renderCardListPayload=JsonUtil.jsonToBean(directive.getPayloadStr(),RenderCardListPayload.class);
+//                        handleRenderCardList(renderCardListPayload);
+                    }
+
                 } else if (directive.getHeader().getName().equals(ApiConstants.Directives.RenderHint.NAME)) {
 
                 }
@@ -434,8 +443,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 handleRenderCardStandard(payLoad);
                 break;
             case RenderCardPayload.TYPE.IMAGELISTCARD:
+
                 break;
             case RenderCardPayload.TYPE.LISTCARD:
+                handleRenderCardList(payLoad);
                 break;
             default:
                 break;
@@ -457,6 +468,14 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         renderCardStandard.setData(payLoad);
         mTopLinearLayout.addView(renderCardStandard);
     }
+
+    private void handleRenderCardList(RenderCardPayload payLoad) {
+        LogUtils.e("处理standard");
+        RenderCardListUI renderCardListUI = new RenderCardListUI(this);
+        renderCardListUI.setData(payLoad);
+        mTopLinearLayout.addView(renderCardListUI);
+    }
+
 
     private IWakeUp.IWakeUpListener wakeUpListener = new IWakeUp.IWakeUpListener() {
         @Override
