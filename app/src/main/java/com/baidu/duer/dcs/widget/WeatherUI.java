@@ -14,6 +14,7 @@ import com.baidu.duer.dcs.util.ImageLoader;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.Util;
+import com.bumptech.glide.Glide;
 
 import java.util.HashMap;
 
@@ -97,16 +98,32 @@ public class WeatherUI extends LinearLayout {
 
         RenderWeatherPayload.WeatherForecastBean bean_first = data.getWeatherForecast().get(0);
 
-
         tv_city.setText(data.getCity());
+
+
         tv_date.setText(bean_first.getDate());
+
         if (!Util.isNullOrBlank(bean_first.getWeatherIcon().getSrc())) {
             ImageLoader.load(context, bean_first.getWeatherIcon().getSrc(), iv_today_status);
+
+
         }
+
+
+
         tv_today_status.setText(bean_first.getWeatherCondition());
+
+
+
         tv_today_temp.setText(bean_first.getLowTemperature() + " ~ " + bean_first.getHighTemperature());
+
+
+
+
         tv_today_decs.setText("今日 " + bean_first.getDate() + " " + bean_first.getWindCondition() + " 空气质量 " + bean_first.getCurrentPM25());
+
         tv_today_quality.setText(bean_first.getCurrentAirQuality());
+
         for (int i = 0; i < data.getWeatherForecast().size(); i++) {
             String url = data.getWeatherForecast().get(i).getWeatherIcon().getSrc();
             String str_temp = data.getWeatherForecast().get(i).getLowTemperature() + " ~ " + data.getWeatherForecast().get(i).getHighTemperature();
@@ -125,6 +142,7 @@ public class WeatherUI extends LinearLayout {
                 time_5.setData(hashMapDate.get(date), url, str_temp, wind);
             }
         }
+        LogUtils.e("data="+data.getCity());
     }
 
     public interface Date {

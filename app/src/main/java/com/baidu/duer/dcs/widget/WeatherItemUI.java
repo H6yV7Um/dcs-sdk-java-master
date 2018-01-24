@@ -59,7 +59,6 @@ public class WeatherItemUI extends LinearLayout {
     public void setData(String date, String urlStatus, String tvStatus, String window) {
 
 
-
         tv_date.setText(date);
         //加载图片
         if (!Util.isNullOrBlank(urlStatus))
@@ -69,14 +68,14 @@ public class WeatherItemUI extends LinearLayout {
         tv_window.setText(window);
     }
 
-    public  interface  Date{
-        String FRI="FRI";
-        String SAT="SAT";
-        String SUN="SUN";
-        String MON="MON";
-        String TUE="TUE";
-        String WED="WED";
-        String THUR="THUR";
+    public interface Date {
+        String FRI = "FRI";
+        String SAT = "SAT";
+        String SUN = "SUN";
+        String MON = "MON";
+        String TUE = "TUE";
+        String WED = "WED";
+        String THUR = "THUR";
     }
 
 

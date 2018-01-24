@@ -89,7 +89,7 @@
                 android:textSize="16dp" />
 
             <Button
-                android:id="@+id/openLogBtn"
+                android:id="@+id/call_front_contact."
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"

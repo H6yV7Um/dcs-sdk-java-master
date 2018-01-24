@@ -48,6 +48,10 @@ import com.baidu.duer.dcs.framework.IResponseListener;
 import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.http.HttpConfig;
 import com.baidu.duer.dcs.bean.MusicLrcBean;
+import com.baidu.duer.dcs.nim.acc.AccountManager;
+import com.baidu.duer.dcs.nim.model.LoginNimLogic;
+import com.baidu.duer.dcs.nim.model.OnModelCallback;
+import com.baidu.duer.dcs.nim.model.RegisterNimLogic;
 import com.baidu.duer.dcs.oauth.api.IOauth;
 import com.baidu.duer.dcs.oauth.api.OauthImpl;
 import com.baidu.duer.dcs.pccmodel.WeatherLogic;
@@ -66,6 +70,7 @@ import com.baidu.duer.dcs.util.LocationUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.NetWorkUtil;
+import com.baidu.duer.dcs.util.SPUtils;
 import com.baidu.duer.dcs.util.ToastUtils;
 import com.baidu.duer.dcs.util.Util;
 import com.baidu.duer.dcs.wakeup.WakeUp;
@@ -74,8 +79,19 @@ import com.baidu.duer.dcs.widget.RenderCardListUI;
 import com.baidu.duer.dcs.widget.RenderCardStandadrUI;
 import com.baidu.duer.dcs.widget.RenderCardTextUI;
 import com.baidu.duer.dcs.widget.WeatherUI;
+import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.avchat.AVChatCallback;
+import com.netease.nimlib.sdk.avchat.AVChatManager;
+import com.netease.nimlib.sdk.avchat.AVChatManagerLite;
+import com.netease.nimlib.sdk.avchat.constant.AVChatChannelProfile;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.netease.nimlib.sdk.avchat.model.AVChatData;
+import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
+import com.netease.nimlib.sdk.avchat.model.AVChatParameters;
 
 import java.io.File;
+
+import static com.netease.nimlib.sdk.avchat.model.AVChatParameters.KEY_AUDIO_HIGH_QUALITY;
 
 /**
  * 主界面 activity
@@ -84,7 +100,7 @@ import java.io.File;
  */
 public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
-    private Button voiceButton;
+    private Button voiceButton, btn_call;
     private TextView textViewTimeStopListen;
     private TextView textViewRenderVoiceInputText;
     private BaseWebView webView;
@@ -175,6 +191,9 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         layout_wakeup_after = (LinearLayout) findViewById(R.id.wakeup_after_layout);
         voiceButton = (Button) findViewById(R.id.voiceBtn);
         voiceButton.setOnClickListener(this);
+
+        btn_call = (Button) findViewById(R.id.call_front_contact_);
+        btn_call.setOnClickListener(this);
 
         textViewTimeStopListen = (TextView) findViewById(R.id.id_tv_time_0);
         textViewRenderVoiceInputText = (TextView) findViewById(R.id.id_tv_RenderVoiceInputText);
@@ -317,9 +336,9 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                     LogUtils.e("待处理数据");
                     RenderCardPayload renderCardPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderCardPayload.class);
 
-                    if (!Util.isNull(renderCardPayload)){
+                    if (!Util.isNull(renderCardPayload)) {
                         handleRenderCardPayLoad(renderCardPayload);
-                    }else {
+                    } else {
 //                        RenderCardListPayload renderCardListPayload=JsonUtil.jsonToBean(directive.getPayloadStr(),RenderCardListPayload.class);
 //                        handleRenderCardList(renderCardListPayload);
                     }
@@ -347,8 +366,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     private void handleRenderWeather(Directive directive) {
 
 
+
+        LogUtils.e("处理天气=="+directive.getPayloadStr());
         if (Util.isNull(directive) || Util.isNullOrBlank(directive.getPayloadStr())) {
-            //没有找歌词
+
             return;
         }
         RenderWeatherPayload renderWeatherPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderWeatherPayload.class);
@@ -544,10 +565,78 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 platformFactory.getVoiceInput().startRecord();
                 doUserActivity();
                 break;
+
+            case R.id.call_front_contact_:
+               String acc;
+
+                if (DcsSampleApplication.loginFirst) {
+                    //拨打xiaokai
+                    acc = "xiaokai";
+
+                } else {
+                    //拨打han
+                    acc = "han";
+                }
+
+                outGoingCalling(acc,AVChatType.AUDIO);
+//                registerNim();
+
+//                loginNim();
+                break;
             default:
                 break;
         }
     }
+
+    /**
+     * 呼叫前台
+     */
+    private void outGoingCalling(String account, final AVChatType callTypeEnum) {
+
+        AVChatNotifyOption notifyOption=new AVChatNotifyOption();
+        //附加字段
+
+        notifyOption.extendMessage="extra_data";
+        //是否兼容WebRTC模式
+        notifyOption.webRTCCompat=false;
+        //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
+        notifyOption.forceKeepCalling = false;
+        //打开Rtc模块
+        AVChatManager.getInstance().enableRtc();
+
+
+
+        //http://dev.netease.im/docs/product/音视频通话/SDK开发集成/Android开发集成/场景模式
+        AVChatParameters params=new AVChatParameters();
+        params.setRequestKey(AVChatParameters.KEY_AUDIO_HIGH_QUALITY);//打开高清语音开关
+        params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_NOISE_SUPPRESSOR);//打开降噪语音处理
+        params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_ACOUSTIC_ECHO_CANCELER);//打开回音消除语音处理
+        params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_AUTOMATIC_GAIN_CONTROL);//打开自动增益语音处理
+        params.setRequestKey(AVChatParameters.KEY_AUDIO_DTX_ENABLE);//打开DTX开关
+        //设置自己需要的可选参数
+        AVChatManager.getInstance().setParameters(params);
+
+        //呼叫
+        AVChatManager.getInstance().call2(account, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
+            @Override
+            public void onSuccess(AVChatData data) {
+                LogUtils.e("发起通话成功");
+                //发起会话成功
+            }
+
+            @Override
+            public void onFailed(int code) {
+                LogUtils.e("发起通话失败,code="+code);
+            }
+
+            @Override
+            public void onException(Throwable exception) {
+                LogUtils.e("发起通话异常,exception="+exception.getMessage());
+            }
+        });
+
+    }
+
 
     //播放音乐时的接口
     private IResponseListener playPauseResponseListener = new IResponseListener() {
@@ -679,4 +768,42 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             }
         }
     };
+
+
+    /**
+     * 登录网易云信的账号
+     */
+    private void loginNim() {
+        LoginNimLogic.doLogin("xiaokai", "fd2eecce7bbb4830f97bfdc3eb511ca4", new OnModelCallback<LoginInfo>() {
+            @Override
+            public void onModelSuccessed(LoginInfo loginInfo) {
+
+
+            }
+
+            @Override
+            public void onModelFailed(String failedMsg) {
+
+            }
+        });
+    }
+
+    /**
+     * 注册网易云信账号
+     */
+    private void registerNim() {
+
+        RegisterNimLogic.registerLogic(this, "han", "123456", new OnModelCallback<String>() {
+            @Override
+            public void onModelSuccessed(String s) {
+
+                LogUtils.e("注册成功===" + s);
+            }
+
+            @Override
+            public void onModelFailed(String failedMsg) {
+                LogUtils.e("注册失败===" + failedMsg);
+            }
+        });
+    }
 }

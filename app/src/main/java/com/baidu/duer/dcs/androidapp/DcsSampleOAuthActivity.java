@@ -24,11 +24,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.baidu.duer.dcs.R;
+import com.baidu.duer.dcs.nim.acc.AccountManager;
+import com.baidu.duer.dcs.nim.model.LoginNimLogic;
+import com.baidu.duer.dcs.nim.model.OnModelCallback;
+import com.baidu.duer.dcs.nim.model.RegisterNimLogic;
 import com.baidu.duer.dcs.oauth.api.BaiduDialog;
 import com.baidu.duer.dcs.oauth.api.BaiduDialogError;
 import com.baidu.duer.dcs.oauth.api.BaiduException;
 import com.baidu.duer.dcs.oauth.api.BaiduOauthImplicitGrant;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
+import com.baidu.duer.dcs.util.SPUtils;
+import com.baidu.duer.dcs.util.Util;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 
 /**
  * 用户认证界面
@@ -109,10 +117,45 @@ public class DcsSampleOAuthActivity extends DcsSampleBaseActivity implements Vie
                             getResources().getString(R.string.client_id_empty),
                             Toast.LENGTH_SHORT).show();
                 }
+
+                dologinNim();
                 break;
             default:
                 break;
         }
+    }
+
+    private void dologinNim() {
+
+
+        String account;
+        String token;
+/**
+ * {"code":200,"info":{"token":"ca627e6eecb9d8dcc7daa6df16f6daca","accid":"han","name":""}}
+ * {"code":200,"info":{"token":"fd2eecce7bbb4830f97bfdc3eb511ca4","accid":"xiaokai","name":""}}
+ */
+        if (DcsSampleApplication.loginFirst) {
+            account = "han";
+            token = "ca627e6eecb9d8dcc7daa6df16f6daca";
+        } else {
+            account = "xiaokai";
+            token = "fd2eecce7bbb4830f97bfdc3eb511ca4";
+        }
+
+
+        LoginNimLogic.doLogin(account, token, new OnModelCallback<LoginInfo>() {
+            @Override
+            public void onModelSuccessed(LoginInfo loginInfo) {
+                LogUtils.e("登录成功,account="+loginInfo.getAccount());
+                AccountManager.getInstance().save(loginInfo.getAccount(), loginInfo.getToken(), RegisterNimLogic.readAppKey(DcsSampleOAuthActivity.this));
+
+            }
+
+            @Override
+            public void onModelFailed(String failedMsg) {
+
+            }
+        });
     }
 
     private void startMainActivity() {
