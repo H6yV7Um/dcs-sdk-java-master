@@ -620,7 +620,9 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         AVChatManager.getInstance().call2(account, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
             @Override
             public void onSuccess(AVChatData data) {
-                LogUtils.e("发起通话成功");
+                LogUtils.e("发起通话成功,data=="+data.getAccount());
+
+
                 //发起会话成功
             }
 

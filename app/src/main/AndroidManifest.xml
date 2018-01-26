@@ -148,7 +148,7 @@
 
         <!-- 音视频 -->
         <activity
-            android:name=".avchat.activity.AVChatActivity"
+          android:name=".nim.avchat.activity.AVChatActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme"

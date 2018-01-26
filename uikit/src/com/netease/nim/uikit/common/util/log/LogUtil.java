@@ -18,10 +18,15 @@ public class LogUtil extends NimLog {
         };
 
         NimLog.initDateNLog(null, logDir, LOG_FILE_NAME_PREFIX, level, 0, 0, true, interceptor);
+        NimLog.initNLog(null, logDir, LOG_FILE_NAME_PREFIX, level, 0, 0, true, interceptor);
     }
 
     public static void ui(String msg) {
-        getLog().i("ui", buildMessage(msg));
+
+        if (null!=getLog()){
+            getLog().i("ui", buildMessage(msg));
+        }
+
     }
 
     public static void res(String msg) {

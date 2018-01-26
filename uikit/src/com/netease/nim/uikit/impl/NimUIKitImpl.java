@@ -170,6 +170,8 @@ public final class NimUIKitImpl {
     }
 
     public static void init(Context context, UIKitOptions options, IUserInfoProvider userInfoProvider, ContactProvider contactProvider) {
+
+        //context不为空
         NimUIKitImpl.context = context.getApplicationContext();
         NimUIKitImpl.options = options;
         // init tools

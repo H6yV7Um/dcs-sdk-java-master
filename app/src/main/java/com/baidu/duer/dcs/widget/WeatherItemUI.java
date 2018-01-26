@@ -21,6 +21,7 @@ import com.baidu.duer.dcs.util.Util;
 
 public class WeatherItemUI extends LinearLayout {
 
+
     private Context context;
 
     private TextView tv_date;

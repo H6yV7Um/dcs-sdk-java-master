@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.Util;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -36,7 +37,7 @@ public class LoginNimLogic {
                     @Override
                     public void onSuccess(LoginInfo param) {
 
-
+                        LogUtils.e("param=="+param.getAccount());
                         if(!Util.isNull(call)){
                             call.onModelSuccessed(param);
                         }
@@ -47,7 +48,7 @@ public class LoginNimLogic {
 
                     @Override
                     public void onFailed(int code) {
-
+                        LogUtils.e("code=="+code);
                         if(Util.isNull(call)){
                             return;
 

@@ -153,7 +153,7 @@ public class DcsSampleOAuthActivity extends DcsSampleBaseActivity implements Vie
 
             @Override
             public void onModelFailed(String failedMsg) {
-
+                LogUtils.e("登录成功,account="+failedMsg);
             }
         });
     }

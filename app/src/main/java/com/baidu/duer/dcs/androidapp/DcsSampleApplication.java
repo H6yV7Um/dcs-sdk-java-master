@@ -16,6 +16,7 @@
 package com.baidu.duer.dcs.androidapp;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,6 +35,9 @@ import com.baidu.duer.dcs.pccmodel.PCCLogic;
 import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.SPUtils;
 import com.baidu.duer.dcs.util.ScreenUtils;
+import com.netease.nim.uikit.api.NimUIKit;
+import com.netease.nim.uikit.api.UIKitOptions;
+import com.netease.nim.uikit.business.contact.core.util.ContactHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.SDKOptions;
@@ -45,6 +49,9 @@ import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.util.NIMUtil;
+
+import java.io.IOException;
 
 /**
  * DcsSample application
@@ -68,15 +75,28 @@ public class DcsSampleApplication extends MultiDexApplication {
         instance = this;
         // LeakCanary.install(this);
 
+        DemoCache.setContext(this);
+
         PCCLogic.getPCC(this);
 
 
         NIMClient.init(this, loginInfo(), options());
 
-        //注册网易来电监听
 
-        enableAVChat();
+
+
+        if (NIMUtil.isMainProcess(this)){
+
+            //注册网易来电监听
+
+            enableAVChat();
+            initUIKit();
+        }
+
+
+//        NimUIKit.init(this);  //添加了这一句无法登录成功
     }
+
 
     public static DcsSampleApplication getInstance() {
         return instance;
@@ -153,6 +173,7 @@ public class DcsSampleApplication extends MultiDexApplication {
     }
 
 
+
     /**
      * 注册来电监听
      */
@@ -164,12 +185,14 @@ public class DcsSampleApplication extends MultiDexApplication {
         AVChatManager.getInstance().observeIncomingCall(new Observer<AVChatData>() {
             @Override
             public void onEvent(AVChatData data) {
+
+
                 String extra = data.getExtra();
-                LogUtils.e("Extra", "Extra Message->" + extra);
+                LogUtils.e("Extra", "Extra Message->" + extra+",data.getAccount=="+data.getAccount());
                 if (PhoneCallStateObserver.getInstance().getPhoneCallState() != PhoneCallStateObserver.PhoneCallStateEnum.IDLE
                         || AVChatProfile.getInstance().isAVChatting()
                         || AVChatManager.getInstance().getCurrentChatId() != 0) {
-                    LogUtils.i("reject incoming call data =" + data.toString() + " as local phone is not idle");
+                    LogUtils.e("reject incoming call data =" + data.toString() + " as local phone is not idle");
                     AVChatManager.getInstance().sendControlCommand(data.getChatId(), AVChatControlCommand.BUSY, null);
                     return;
                 }
@@ -178,6 +201,42 @@ public class DcsSampleApplication extends MultiDexApplication {
                 AVChatActivity.launch(DemoCache.getContext(), data, AVChatActivity.FROM_BROADCASTRECEIVER);
             }
         }, register);
+    }
+
+
+    private void initUIKit() {
+        NimUIKit.init(this,buildUIKitOptions());
+
+//        ContactHelper.init();
+    }
+
+    private UIKitOptions buildUIKitOptions() {
+        UIKitOptions options = new UIKitOptions();
+        // 设置app图片/音频/日志等缓存目录
+        options.appCacheDir = getAppCacheDir(this) + "/app";
+        return options;
+    }
+    /**
+     * 配置 APP 保存图片/语音/文件/log等数据的目录
+     * 这里示例用SD卡的应用扩展存储目录
+     */
+    static String getAppCacheDir(Context context) {
+        String storageRootPath = null;
+        try {
+            // SD卡应用扩展存储区(APP卸载后，该目录下被清除，用户也可以在设置界面中手动清除)，请根据APP对数据缓存的重要性及生命周期来决定是否采用此缓存目录.
+            // 该存储区在API 19以上不需要写权限，即可配置 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18"/>
+            if (context.getExternalCacheDir() != null) {
+                storageRootPath = context.getExternalCacheDir().getCanonicalPath();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (TextUtils.isEmpty(storageRootPath)) {
+            // SD卡应用公共存储区(APP卸载后，该目录不会被清除，下载安装APP后，缓存数据依然可以被加载。SDK默认使用此目录)，该存储区域需要写权限!
+            storageRootPath = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName();
+        }
+
+        return storageRootPath;
     }
 
 }

@@ -38,7 +38,7 @@ public abstract class UI extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LogUtil.ui("activity: " + getClass().getSimpleName() + " onCreate()");
+//        LogUtil.ui("activity: " + getClass().getSimpleName() + " onCreate()");
     }
 
     @Override
