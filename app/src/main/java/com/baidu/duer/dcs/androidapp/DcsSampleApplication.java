@@ -88,7 +88,6 @@ public class DcsSampleApplication extends MultiDexApplication {
         if (NIMUtil.isMainProcess(this)){
 
             //注册网易来电监听
-
             enableAVChat();
             initUIKit();
         }

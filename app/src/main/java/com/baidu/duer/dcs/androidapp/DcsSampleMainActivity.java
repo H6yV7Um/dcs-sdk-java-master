@@ -48,7 +48,9 @@ import com.baidu.duer.dcs.framework.IResponseListener;
 import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.http.HttpConfig;
 import com.baidu.duer.dcs.bean.MusicLrcBean;
+import com.baidu.duer.dcs.nim.DemoCache;
 import com.baidu.duer.dcs.nim.acc.AccountManager;
+import com.baidu.duer.dcs.nim.avchat.activity.AVChatActivity;
 import com.baidu.duer.dcs.nim.model.LoginNimLogic;
 import com.baidu.duer.dcs.nim.model.OnModelCallback;
 import com.baidu.duer.dcs.nim.model.RegisterNimLogic;
@@ -577,8 +579,8 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                     //拨打han
                     acc = "han";
                 }
-
-                outGoingCalling(acc,AVChatType.AUDIO);
+                AVChatActivity.launch(DemoCache.getContext(), acc,AVChatType.AUDIO.getValue(), AVChatActivity.FROM_INTERNAL);
+//                outGoingCalling(acc,AVChatType.AUDIO);
 //                registerNim();
 
 //                loginNim();
@@ -609,6 +611,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         //http://dev.netease.im/docs/product/音视频通话/SDK开发集成/Android开发集成/场景模式
         AVChatParameters params=new AVChatParameters();
         params.setRequestKey(AVChatParameters.KEY_AUDIO_HIGH_QUALITY);//打开高清语音开关
+
         params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_NOISE_SUPPRESSOR);//打开降噪语音处理
         params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_ACOUSTIC_ECHO_CANCELER);//打开回音消除语音处理
         params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_AUTOMATIC_GAIN_CONTROL);//打开自动增益语音处理
@@ -623,11 +626,15 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 LogUtils.e("发起通话成功,data=="+data.getAccount());
 
 
+
                 //发起会话成功
+                AVChatActivity.launch(DemoCache.getContext(), data.getAccount(),data.getChatType().getValue(), AVChatActivity.FROM_INTERNAL);
             }
 
             @Override
             public void onFailed(int code) {
+
+                ToastUtils.showForumToast(DcsSampleMainActivity.this,"对方离线中,无法拨打",R.drawable.pop_icon_toast_fail);
                 LogUtils.e("发起通话失败,code="+code);
             }
 

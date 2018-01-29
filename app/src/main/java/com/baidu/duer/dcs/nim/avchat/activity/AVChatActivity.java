@@ -20,6 +20,7 @@ import com.baidu.duer.dcs.nim.avchat.AVChatTimeoutObserver;
 import com.baidu.duer.dcs.nim.avchat.AVChatUI;
 import com.baidu.duer.dcs.nim.avchat.constant.CallStateEnum;
 import com.baidu.duer.dcs.nim.avchat.receiver.PhoneCallStateObserver;
+import com.baidu.duer.dcs.util.LogUtils;
 import com.faceunity.FaceU;
 import com.faceunity.utils.VersionUtil;
 
@@ -106,6 +107,13 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
     // notification
     private AVChatNotification notifier;
 
+    /**
+     * outgingcall
+     * @param context
+     * @param account
+     * @param callType
+     * @param source
+     */
     public static void launch(Context context, String account, int callType, int source) {
         needFinish = false;
         Intent intent = new Intent();
@@ -231,6 +239,9 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
                 parseIncomingIntent();
                 return true;
             case FROM_INTERNAL: // outgoing call
+
+
+                LogUtils.e("拨打电话" );
                 parseOutgoingIntent();
                 if (state == AVChatType.VIDEO.getValue() || state == AVChatType.AUDIO.getValue()) {
                     return true;
@@ -294,6 +305,7 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
                     avChatUI.closeRtc();
                     avChatUI.closeSessions(AVChatExitCode.REJECT);
                 } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_AGREE) {
+
                     avChatUI.isCallEstablish.set(true);
                     avChatUI.canSwitchCamera = true;
                 }
