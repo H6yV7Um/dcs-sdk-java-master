@@ -72,7 +72,7 @@ public class WakeUpDecodeThread extends Thread {
     @Override
     public void run() {
         super.run();
-        LogUtil.i(TAG, "wakeup wakeUpDecode start" );
+
         while (isStart) {
             try {
                 byte[] data = linkedBlockingDeque.take();

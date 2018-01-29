@@ -15,10 +15,13 @@
  */
 package com.baidu.duer.dcs.androidapp;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +36,7 @@ import android.widget.Toast;
 import com.baidu.duer.dcs.R;
 import com.baidu.duer.dcs.androidsystemimpl.PlatformFactoryImpl;
 import com.baidu.duer.dcs.androidsystemimpl.webview.BaseWebView;
+import com.baidu.duer.dcs.banner.NetworkImageHolderView;
 import com.baidu.duer.dcs.devicemodule.screen.ApiConstants;
 import com.baidu.duer.dcs.devicemodule.screen.ScreenDeviceModule;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.ScreenExtendDeviceModule;
@@ -81,6 +85,9 @@ import com.baidu.duer.dcs.widget.RenderCardListUI;
 import com.baidu.duer.dcs.widget.RenderCardStandadrUI;
 import com.baidu.duer.dcs.widget.RenderCardTextUI;
 import com.baidu.duer.dcs.widget.WeatherUI;
+import com.bigkoo.convenientbanner.ConvenientBanner;
+import com.bigkoo.convenientbanner.holder.CBViewHolderCreator;
+import com.bigkoo.convenientbanner.listener.OnItemClickListener;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
@@ -92,6 +99,8 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.model.AVChatParameters;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.netease.nimlib.sdk.avchat.model.AVChatParameters.KEY_AUDIO_HIGH_QUALITY;
 
@@ -102,6 +111,8 @@ import static com.netease.nimlib.sdk.avchat.model.AVChatParameters.KEY_AUDIO_HIG
  */
 public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
+
+    private ConvenientBanner<String> cb;
     private Button voiceButton, btn_call;
     private TextView textViewTimeStopListen;
     private TextView textViewRenderVoiceInputText;
@@ -132,7 +143,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.dcs_sample_activity_main);
+
         initView();
         initOauth();
         initFramework();
@@ -146,7 +160,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
     private void initView() {
 
-
+        cb = findViewById(R.id.banner_cban);
         layout_wakeup_before = (RelativeLayout) findViewById(R.id.wakeup_before_layout);
         tv_time = (TextView) findViewById(R.id.wakeup_before_tv_time);
         tv_date = (TextView) findViewById(R.id.wakeup_before_tv_date);
@@ -157,6 +171,8 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         LocationUtil.getLocationString(this, new LocationUtil.LocationCallback() {
             @Override
             public void onSuccess(Province province, City city, County county) {
+
+
                 LogUtils.e(province.toString() + "," + city.toString() + "," + county.toString());
 
                 WeatherLogic.getWeahter(DcsSampleMainActivity.this, county.getCountyCode(), new WeatherLogic.WeatherCallback() {
@@ -167,7 +183,6 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                             @Override
                             public void run() {
                                 tv_addr.setText(bean.getCity());
-
                                 tv_weahter.setText(bean.getTemp1() + "° ~ " + bean.getTemp2() + "  " + bean.getWeather());
                             }
                         });
@@ -178,6 +193,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                     @Override
                     public void onFailed(String failMsg) {
 
+                        LogUtils.e("获取地址失败==" + failMsg);
                     }
                 });
             }
@@ -195,6 +211,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         voiceButton.setOnClickListener(this);
 
         btn_call = (Button) findViewById(R.id.call_front_contact_);
+
+        if (DcsSampleApplication.loginFirst) {
+            btn_call.setVisibility(View.GONE);
+        }
         btn_call.setOnClickListener(this);
 
         textViewTimeStopListen = (TextView) findViewById(R.id.id_tv_time_0);
@@ -304,6 +324,8 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             @Override
             public void onRenderDirective(Directive directive) {
                 mTopLinearLayout.removeAllViews();
+
+                cb.setVisibility(View.GONE);
                 if (directive.getHeader().getName().equals(com.baidu.duer.dcs.devicemodule.screen.extend.card.ApiConstants.Directives.RenderWeather.NAME)) {
                     //查询天气时返回json
                     handleRenderWeather(directive);
@@ -323,7 +345,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             public void onRenderDirective(Directive directive) {
                 //从directive 中获取playload
                 mTopLinearLayout.removeAllViews();
-
+                cb.setVisibility(View.GONE);
 //{header=
 // Header{namespace='ai.dueros.device_interface.screen', name='RenderCard'} id:NWE1ZjFiYzFlZTc0OA== dialogRequestId:742be235-8c8f-4af2-ba28-14889f54da1e,
 // payload=com.baidu.duer.dcs.framework.message.Payload@d30e4c2,
@@ -358,6 +380,8 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         wakeUp.addWakeUpListener(wakeUpListener);
         // 开始录音，监听是否说了唤醒词
         wakeUp.startWakeUp();
+
+        LogUtils.e("初始化framework");
     }
 
     /**
@@ -368,8 +392,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     private void handleRenderWeather(Directive directive) {
 
 
-
-        LogUtils.e("处理天气=="+directive.getPayloadStr());
+        LogUtils.e("处理天气==" + directive.getPayloadStr());
         if (Util.isNull(directive) || Util.isNullOrBlank(directive.getPayloadStr())) {
 
             return;
@@ -389,6 +412,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     private void handlePlayMusicLrc(Directive directive) {
         LogUtils.e("获取到的RenderCardPayload数据===" + directive.getPayloadStr());
 
+
         if (Util.isNull(directive) || Util.isNullOrBlank(directive.getPayloadStr())) {
             //没有找歌词
             PlayMusicUI playMusicUI = new PlayMusicUI(DcsSampleMainActivity.this);
@@ -397,7 +421,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             return;
         }
 
-        RenderPlayerInfoPayload playerInfoPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderPlayerInfoPayload.class);
+        final RenderPlayerInfoPayload playerInfoPayload = JsonUtil.jsonToBean(directive.getPayloadStr(), RenderPlayerInfoPayload.class);
+//        是否有图
+
+
 
         if (Util.isNull(playerInfoPayload)) {
             //没有获取找到相关歌词
@@ -435,6 +462,17 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                             PlayMusicUI playMusicUI = new PlayMusicUI(DcsSampleMainActivity.this);
                             playMusicUI.getTextViewLrc().setText(bean.getData().getLycContent());
                             mTopLinearLayout.addView(playMusicUI);
+
+                            try {
+                                if (!Util.isNullOrBlank(playerInfoPayload.getContent().getArt().getSrc())) {
+                                    cb.setVisibility(View.VISIBLE);
+                                    setConvenientBanner(playerInfoPayload.getContent().getArt().getSrc(),bean.getData().getWap_lycUrl());
+                                } else {
+                                    cb.setVisibility(View.GONE);
+                                }
+                            } catch (Exception e) {
+
+                            }
                         }
                     });
 
@@ -452,6 +490,43 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 mTopLinearLayout.addView(playMusicUI);
             }
         });
+
+
+    }
+
+    private void setConvenientBanner(String src, final String wapURL) {
+        final List<String> srcs = new ArrayList<>();
+        srcs.add(src);
+        srcs.add(src);
+        srcs.add(src);
+        srcs.add(src);
+        cb.setPages(new CBViewHolderCreator<NetworkImageHolderView>() {
+            @Override
+            public NetworkImageHolderView createHolder() {
+                return new NetworkImageHolderView();
+            }
+        }, srcs)
+                .setPointViewVisible(true)//设置指示器是否可见
+                .setPageIndicator(new int[]{R.drawable.icon_indictor_normal, R.drawable.icon_indictor_select})
+                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
+                .setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(int position) {
+                        //跳转到帖子详情页
+//判断是否有tid和fid
+                        if (!Util.isNullOrBlank(wapURL)) {
+                            //如果没有tid ,调用默认的浏览器打开该链接
+                            Intent intent = new Intent();
+                            intent.setAction("android.intent.action.VIEW");
+                            Uri content_url = Uri.parse(wapURL);
+                            intent.setData(content_url);
+                        }
+
+                    }
+                });//设置指示器的方向（左、中、右）
+        if (!cb.isTurning()) {
+            cb.startTurning(2000);
+        }
 
 
     }
@@ -523,6 +598,8 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         } else {
             baiduOauth.authorize();
         }
+
+        LogUtils.e("initOauth");
     }
 
     private void stopRecording() {
@@ -569,7 +646,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                 break;
 
             case R.id.call_front_contact_:
-               String acc;
+                String acc;
 
                 if (DcsSampleApplication.loginFirst) {
                     //拨打xiaokai
@@ -579,7 +656,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
                     //拨打han
                     acc = "han";
                 }
-                AVChatActivity.launch(DemoCache.getContext(), acc,AVChatType.AUDIO.getValue(), AVChatActivity.FROM_INTERNAL);
+                AVChatActivity.launch(DemoCache.getContext(), acc, AVChatType.AUDIO.getValue(), AVChatActivity.FROM_INTERNAL);
 //                outGoingCalling(acc,AVChatType.AUDIO);
 //                registerNim();
 
@@ -595,21 +672,20 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
      */
     private void outGoingCalling(String account, final AVChatType callTypeEnum) {
 
-        AVChatNotifyOption notifyOption=new AVChatNotifyOption();
+        AVChatNotifyOption notifyOption = new AVChatNotifyOption();
         //附加字段
 
-        notifyOption.extendMessage="extra_data";
+        notifyOption.extendMessage = "extra_data";
         //是否兼容WebRTC模式
-        notifyOption.webRTCCompat=false;
+        notifyOption.webRTCCompat = false;
         //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
         notifyOption.forceKeepCalling = false;
         //打开Rtc模块
         AVChatManager.getInstance().enableRtc();
 
 
-
         //http://dev.netease.im/docs/product/音视频通话/SDK开发集成/Android开发集成/场景模式
-        AVChatParameters params=new AVChatParameters();
+        AVChatParameters params = new AVChatParameters();
         params.setRequestKey(AVChatParameters.KEY_AUDIO_HIGH_QUALITY);//打开高清语音开关
 
         params.setRequestKey(AVChatParameters.KEY_AUDIO_EFFECT_NOISE_SUPPRESSOR);//打开降噪语音处理
@@ -623,24 +699,23 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
         AVChatManager.getInstance().call2(account, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
             @Override
             public void onSuccess(AVChatData data) {
-                LogUtils.e("发起通话成功,data=="+data.getAccount());
-
+                LogUtils.e("发起通话成功,data==" + data.getAccount());
 
 
                 //发起会话成功
-                AVChatActivity.launch(DemoCache.getContext(), data.getAccount(),data.getChatType().getValue(), AVChatActivity.FROM_INTERNAL);
+                AVChatActivity.launch(DemoCache.getContext(), data.getAccount(), data.getChatType().getValue(), AVChatActivity.FROM_INTERNAL);
             }
 
             @Override
             public void onFailed(int code) {
 
-                ToastUtils.showForumToast(DcsSampleMainActivity.this,"对方离线中,无法拨打",R.drawable.pop_icon_toast_fail);
-                LogUtils.e("发起通话失败,code="+code);
+                ToastUtils.showForumToast(DcsSampleMainActivity.this, "对方离线中,无法拨打", R.drawable.pop_icon_toast_fail);
+                LogUtils.e("发起通话失败,code=" + code);
             }
 
             @Override
             public void onException(Throwable exception) {
-                LogUtils.e("发起通话异常,exception="+exception.getMessage());
+                LogUtils.e("发起通话异常,exception=" + exception.getMessage());
             }
         });
 

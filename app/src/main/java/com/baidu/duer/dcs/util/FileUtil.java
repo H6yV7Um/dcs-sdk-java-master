@@ -103,6 +103,7 @@ public class FileUtil {
 
         BufferedWriter out = null;
         try {
+
             out = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(file, true)));
             out.write(content);
@@ -111,6 +112,7 @@ public class FileUtil {
             e.printStackTrace();
         } finally {
             try {
+                if (!Util.isNull(out))
                 out.close();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -15,7 +15,10 @@
  */
 package com.baidu.duer.dcs.androidapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -61,6 +64,8 @@ public class DcsSampleOAuthActivity extends DcsSampleBaseActivity implements Vie
         setContentView(R.layout.dcs_sample_activity_oauth);
         initView();
         setOnClickListener();
+
+
     }
 
     private void setOnClickListener() {
@@ -159,6 +164,8 @@ public class DcsSampleOAuthActivity extends DcsSampleBaseActivity implements Vie
     }
 
     private void startMainActivity() {
+
+        LogUtils.e("开始启动Main");
         Intent intent = new Intent(DcsSampleOAuthActivity.this, DcsSampleMainActivity.class);
         intent.putExtra("baidu", baiduOauthImplicitGrant);
         startActivity(intent);

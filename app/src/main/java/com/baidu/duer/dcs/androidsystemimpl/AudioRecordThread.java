@@ -22,6 +22,7 @@ import android.media.MediaRecorder;
 
 import com.baidu.duer.dcs.systeminterface.IAudioRecord;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.LogUtils;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -41,10 +42,14 @@ public class AudioRecordThread extends Thread implements IAudioRecord {
 
     public AudioRecordThread(LinkedBlockingDeque<byte[]> linkedBlockingDeque) {
         this.linkedBlockingDeque = linkedBlockingDeque;
+
+        LogUtils.e("初始化AudioRecord");
         bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_HZ, AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
+        LogUtils.e("初始化AudioRecord");
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_HZ, AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+        LogUtils.e("初始化AudioRecord");
     }
 
     @Override
