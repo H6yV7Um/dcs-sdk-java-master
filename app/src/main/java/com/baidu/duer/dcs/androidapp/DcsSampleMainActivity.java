@@ -15,16 +15,15 @@
  */
 package com.baidu.duer.dcs.androidapp;
 
-import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -36,13 +35,13 @@ import android.widget.Toast;
 import com.baidu.duer.dcs.R;
 import com.baidu.duer.dcs.androidsystemimpl.PlatformFactoryImpl;
 import com.baidu.duer.dcs.androidsystemimpl.webview.BaseWebView;
-import com.baidu.duer.dcs.banner.NetworkImageHolderView;
+import com.baidu.duer.dcs.banner.BannerAdapter;
+import com.baidu.duer.dcs.banner.BannerMeishiAdapter;
 import com.baidu.duer.dcs.devicemodule.screen.ApiConstants;
 import com.baidu.duer.dcs.devicemodule.screen.ScreenDeviceModule;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.ScreenExtendDeviceModule;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.message.RenderPlayerInfoPayload;
 import com.baidu.duer.dcs.devicemodule.screen.extend.card.message.RenderWeatherPayload;
-import com.baidu.duer.dcs.devicemodule.screen.message.RenderCardListPayload;
 import com.baidu.duer.dcs.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.devicemodule.voiceinput.VoiceInputDeviceModule;
@@ -53,7 +52,6 @@ import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.http.HttpConfig;
 import com.baidu.duer.dcs.bean.MusicLrcBean;
 import com.baidu.duer.dcs.nim.DemoCache;
-import com.baidu.duer.dcs.nim.acc.AccountManager;
 import com.baidu.duer.dcs.nim.avchat.activity.AVChatActivity;
 import com.baidu.duer.dcs.nim.model.LoginNimLogic;
 import com.baidu.duer.dcs.nim.model.OnModelCallback;
@@ -76,7 +74,6 @@ import com.baidu.duer.dcs.util.LocationUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.LogUtils;
 import com.baidu.duer.dcs.util.NetWorkUtil;
-import com.baidu.duer.dcs.util.SPUtils;
 import com.baidu.duer.dcs.util.ToastUtils;
 import com.baidu.duer.dcs.util.Util;
 import com.baidu.duer.dcs.wakeup.WakeUp;
@@ -91,8 +88,6 @@ import com.bigkoo.convenientbanner.listener.OnItemClickListener;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
-import com.netease.nimlib.sdk.avchat.AVChatManagerLite;
-import com.netease.nimlib.sdk.avchat.constant.AVChatChannelProfile;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
@@ -102,8 +97,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.netease.nimlib.sdk.avchat.model.AVChatParameters.KEY_AUDIO_HIGH_QUALITY;
-
 /**
  * 主界面 activity
  * <p>
@@ -112,7 +105,7 @@ import static com.netease.nimlib.sdk.avchat.model.AVChatParameters.KEY_AUDIO_HIG
 public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
 
-    private ConvenientBanner<String> cb;
+    private RecyclerView rv;
     private Button voiceButton, btn_call;
     private TextView textViewTimeStopListen;
     private TextView textViewRenderVoiceInputText;
@@ -160,7 +153,9 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
     private void initView() {
 
-        cb = findViewById(R.id.banner_cban);
+        rv = findViewById(R.id.banner_recycler);
+        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        setMeishiAdapter();
         layout_wakeup_before = (RelativeLayout) findViewById(R.id.wakeup_before_layout);
         tv_time = (TextView) findViewById(R.id.wakeup_before_tv_time);
         tv_date = (TextView) findViewById(R.id.wakeup_before_tv_date);
@@ -254,6 +249,19 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
     }
 
+    private void setMeishiAdapter() {
+        List<Integer> meishiList = new ArrayList<>();
+        meishiList.add(R.drawable.meishi_01);
+        meishiList.add(R.drawable.meishi_02);
+        meishiList.add(R.drawable.meishi_05);
+        meishiList.add(R.drawable.meishi_04);
+        meishiList.add(R.drawable.meishi_06);
+        meishiList.add(R.drawable.meishi_07);
+
+        BannerMeishiAdapter meishiAdapter = new BannerMeishiAdapter(meishiList, this, null);
+        rv.setAdapter(meishiAdapter);
+    }
+
 
     private void initFramework() {
         platformFactory = new PlatformFactoryImpl(this);
@@ -325,7 +333,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             public void onRenderDirective(Directive directive) {
                 mTopLinearLayout.removeAllViews();
 
-                cb.setVisibility(View.GONE);
+                rv.setVisibility(View.GONE);
                 if (directive.getHeader().getName().equals(com.baidu.duer.dcs.devicemodule.screen.extend.card.ApiConstants.Directives.RenderWeather.NAME)) {
                     //查询天气时返回json
                     handleRenderWeather(directive);
@@ -345,7 +353,7 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
             public void onRenderDirective(Directive directive) {
                 //从directive 中获取playload
                 mTopLinearLayout.removeAllViews();
-                cb.setVisibility(View.GONE);
+                rv.setVisibility(View.GONE);
 //{header=
 // Header{namespace='ai.dueros.device_interface.screen', name='RenderCard'} id:NWE1ZjFiYzFlZTc0OA== dialogRequestId:742be235-8c8f-4af2-ba28-14889f54da1e,
 // payload=com.baidu.duer.dcs.framework.message.Payload@d30e4c2,
@@ -425,7 +433,6 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 //        是否有图
 
 
-
         if (Util.isNull(playerInfoPayload)) {
             //没有获取找到相关歌词
             PlayMusicUI playMusicUI = new PlayMusicUI(DcsSampleMainActivity.this);
@@ -465,10 +472,10 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
 
                             try {
                                 if (!Util.isNullOrBlank(playerInfoPayload.getContent().getArt().getSrc())) {
-                                    cb.setVisibility(View.VISIBLE);
-                                    setConvenientBanner(playerInfoPayload.getContent().getArt().getSrc(),bean.getData().getWap_lycUrl());
+
+                                    setConvenientBanner(playerInfoPayload.getContent().getArt().getSrc(), bean.getData().getWap_lycUrl());
                                 } else {
-                                    cb.setVisibility(View.GONE);
+                                    rv.setVisibility(View.GONE);
                                 }
                             } catch (Exception e) {
 
@@ -495,40 +502,15 @@ public class DcsSampleMainActivity extends DcsSampleBaseActivity implements View
     }
 
     private void setConvenientBanner(String src, final String wapURL) {
+        LogUtils.e("wapUrl==" + wapURL);
         final List<String> srcs = new ArrayList<>();
         srcs.add(src);
         srcs.add(src);
         srcs.add(src);
         srcs.add(src);
-        cb.setPages(new CBViewHolderCreator<NetworkImageHolderView>() {
-            @Override
-            public NetworkImageHolderView createHolder() {
-                return new NetworkImageHolderView();
-            }
-        }, srcs)
-                .setPointViewVisible(true)//设置指示器是否可见
-                .setPageIndicator(new int[]{R.drawable.icon_indictor_normal, R.drawable.icon_indictor_select})
-                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
-                .setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        //跳转到帖子详情页
-//判断是否有tid和fid
-                        if (!Util.isNullOrBlank(wapURL)) {
-                            //如果没有tid ,调用默认的浏览器打开该链接
-                            Intent intent = new Intent();
-                            intent.setAction("android.intent.action.VIEW");
-                            Uri content_url = Uri.parse(wapURL);
-                            intent.setData(content_url);
-                        }
-
-                    }
-                });//设置指示器的方向（左、中、右）
-        if (!cb.isTurning()) {
-            cb.startTurning(2000);
-        }
-
-
+        BannerAdapter adapter = new BannerAdapter(srcs, this, wapURL);
+        rv.setAdapter(adapter);
+        rv.setVisibility(View.VISIBLE);
     }
 
     //处理RenderCardPlayLoad

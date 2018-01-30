@@ -67,7 +67,7 @@ public class DcsSampleApplication extends MultiDexApplication {
      * {"code":200,"info":{"token":"ca627e6eecb9d8dcc7daa6df16f6daca","accid":"han","name":""}}
      * {"code":200,"info":{"token":"fd2eecce7bbb4830f97bfdc3eb511ca4","accid":"xiaokai","name":""}}
      */
-    public static boolean loginFirst = true;
+    public static boolean loginFirst = false;
 
 
     public void onCreate() {
